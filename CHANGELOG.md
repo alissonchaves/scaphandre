@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Please check dev branch.
 
+## [1.0.2](https://github.com/hubblo-org/scaphandre/releases/tag/v1.0.1)
+
+### Fixed
+
+- Upgraded Docker image to rust:1.84
+
 ## [1.0.1](https://github.com/hubblo-org/scaphandre/releases/tag/v1.0.1)
 
 ### Added
