@@ -1,0 +1,11 @@
+Package: scaphandre
+Version: 1.0.0-1
+Architecture: amd64
+Maintainer: Martin Simon <me@martinsimon.me>
+Installed-Size: 10833
+Section: utils
+Priority: optional
+Homepage: https://github.com/hubblo-org/scaphandre
+Description: Electrical power consumption metrology agent.
+ Let scaphandre dive and bring back the metrics that will help you make
+ your systems and applications more sustainable !

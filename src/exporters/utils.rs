@@ -1,6 +1,7 @@
 //! # utils
 //!
 //! The utils module provides common functions used by the exporters.
+use regex::Regex;
 use clap::crate_version;
 use std::collections::HashMap;
 use std::fmt::Write;
@@ -50,17 +51,12 @@ pub fn format_prometheus_metric(
 /// Returns an Option containing the VM name of a qemu process.
 ///
 /// Then VM name is extracted from the command line.
-pub fn filter_qemu_cmdline(cmdline: &str) -> Option<String> {
-    if cmdline.contains("qemu-system") && cmdline.contains("guest=") {
-        let vmname: Vec<Vec<&str>> = cmdline
-            .split("guest=")
-            .map(|x| x.split(',').collect())
-            .collect();
-
-        match (vmname[1].len(), vmname[1][0].is_empty()) {
-            (1, _) => return None,
-            (_, true) => return None,
-            (_, false) => return Some(String::from(vmname[1][0])),
+/// Extracts VM name from Proxmox/KVM cmdline using the -name flag.
+pub fn filter_proxmox_cmdline(cmdline: &str) -> Option<String> {
+    if cmdline.contains("/usr/bin/kvm") && cmdline.contains("-name ") {
+        let re = Regex::new(r"-name\s+([a-zA-Z0-9_\-\.]+)").ok()?;
+        if let Some(caps) = re.captures(cmdline) {
+            return Some(caps[1].to_string());
         }
     }
     None
@@ -123,6 +119,11 @@ mod tests {
         let cmdline = "qemu-system-x86_64,file=/var/lib/libvirt/qemu/domain-1-fedora33/master-key.aes-object-Sguest=";
         assert_eq!(filter_qemu_cmdline(cmdline), None);
     }
+    #[test]
+    fn test_filter_proxmox_cmdline_ok() {
+        let cmdline = "/usr/bin/kvm -id 106 -name skynet,debug-threads=on -other-options";
+        assert_eq!(filter_proxmox_cmdline(cmdline), Some("skynet".to_string()));
+}
 }
 
 #[cfg(feature = "containers")]

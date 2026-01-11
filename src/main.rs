@@ -97,6 +97,10 @@ enum ExporterChoice {
     #[cfg(feature = "qemu")]
     Qemu,
 
+    /// Export power metrics to Proxmox guest VMs
+    #[cfg(feature = "proxmox")]
+    Proxmox,
+
     /// Expose the metrics to a Riemann server
     #[cfg(feature = "riemann")]
     Riemann(exporters::riemann::ExporterArgs),
@@ -257,6 +261,10 @@ fn build_exporter(choice: ExporterChoice, sensor: &dyn Sensor) -> Box<dyn export
         #[cfg(feature = "qemu")]
         ExporterChoice::Qemu => {
             Box::new(exporters::qemu::QemuExporter::new(sensor)) // keep this in braces
+        }
+        #[cfg(feature = "proxmox")]
+        ExporterChoice::Proxmox => {
+            Box::new(exporters::proxmox::ProxmoxExporter::new(sensor))
         }
         #[cfg(feature = "riemann")]
         ExporterChoice::Riemann(args) => {

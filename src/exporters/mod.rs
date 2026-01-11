@@ -10,6 +10,8 @@ pub mod prometheus;
 pub mod prometheuspush;
 #[cfg(target_os = "linux")]
 pub mod qemu;
+#[cfg(target_os = "linux")]
+pub mod proxmox;
 #[cfg(feature = "riemann")]
 pub mod riemann;
 pub mod stdout;
@@ -128,6 +130,8 @@ pub struct MetricGenerator {
     /// Tells MetricGenerator if it has to watch for qemu virtual machines.
     #[cfg(target_os = "linux")]
     qemu: bool,
+    #[cfg(target_os = "linux")]
+    proxmox: bool,
     /// Tells MetricGenerator if it has to watch for containers.
     #[cfg(feature = "containers")]
     watch_containers: bool,
@@ -170,6 +174,7 @@ impl MetricGenerator {
         topology: Topology,
         hostname: String,
         _qemu: bool,
+        _proxmox: bool,
         _watch_containers: bool,
     ) -> MetricGenerator {
         let data = Vec::new();
@@ -208,6 +213,8 @@ impl MetricGenerator {
                 containers,
                 #[cfg(target_os = "linux")]
                 qemu: _qemu,
+                #[cfg(target_os = "linux")]
+                proxmox: _proxmox,
                 containers_last_check: String::from(""),
                 docker_version,
                 docker_client,
@@ -227,6 +234,8 @@ impl MetricGenerator {
             hostname,
             #[cfg(target_os = "linux")]
             qemu: _qemu,
+            #[cfg(target_os = "linux")]
+            proxmox: _proxmox,
         }
     }
 
@@ -961,6 +970,12 @@ impl MetricGenerator {
                 #[cfg(target_os = "linux")]
                 if self.qemu {
                     if let Some(vmname) = utils::filter_qemu_cmdline(&cmdline_str) {
+                        attributes.insert("vmname".to_string(), vmname);
+                    }
+                }
+                #[cfg(target_os = "linux")]
+                if self.proxmox {
+                    if let Some(vmname) = utils::filter_proxmox_cmdline(&cmdline_str) {
                         attributes.insert("vmname".to_string(), vmname);
                     }
                 }

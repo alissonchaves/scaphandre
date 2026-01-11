@@ -49,6 +49,10 @@ pub struct ExporterArgs {
     #[arg(long)]
     pub qemu: bool,
 
+    /// Apply labels to metrics of processes launched via Proxmox (KVM)
+    #[arg(long)]
+    pub proxmox: bool,
+
     /// Apply labels to metrics of processes running as containers
     #[arg(long)]
     pub containers: bool,
@@ -83,6 +87,7 @@ impl Exporter for PrometheusExporter {
             self.topo.clone(), // improvement possible here: avoid cloning by adding a lifetime param to MetricGenerator
             self.hostname.clone(),
             self.args.qemu,
+            self.args.proxmox,
             self.args.containers,
         );
         run_server(socket_addr, metric_generator, &self.args.suffix);
