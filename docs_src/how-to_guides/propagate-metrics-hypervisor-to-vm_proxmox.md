@@ -27,6 +27,10 @@ Each VM directory name follows:
 
     <VMID>-<VM_NAME>
 
+Create the VM directory manually before configuring passthrough:
+
+    mkdir -p /tmp/scaphandre/<VMID>-<VM_NAME>
+
 ### 2. Map the host folder into the VM (Proxmox config)
 
 On the Proxmox host, edit the VM config:
