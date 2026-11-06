@@ -1,6 +1,6 @@
 use crate::exporters::Exporter;
 use crate::sensors::Topology;
-use crate::sensors::{utils::ProcessRecord, Sensor};
+use crate::sensors::{Sensor, utils::ProcessRecord};
 use std::{fs, io, thread, time};
 
 /// An Exporter that extracts power consumption data of running
@@ -69,7 +69,7 @@ impl QemuExporter {
                     if fs::read_dir(&first_domain_path).is_err() {
                         match fs::create_dir_all(&first_domain_path) {
                             Ok(_) => info!("Created {} folder.", &path),
-                            Err(error) => panic!("Couldn't create {}. Got: {}", &path, error),
+                            Err(error) => panic!("Couldn't create {}. Got: {}", path, error),
                         }
                     }
                     if let Some(ratio) = self
@@ -87,7 +87,7 @@ impl QemuExporter {
                             }
                             Err(err) => {
                                 error!(
-                                    "Could'nt edit {}. Please check file permissions : {}",
+                                    "Couldn't edit {}. Please check file permissions : {}",
                                     complete_path, err
                                 );
                             }
@@ -136,22 +136,20 @@ impl QemuExporter {
         let mut qemu_processes: Vec<Vec<ProcessRecord>> = vec![];
         trace!("Got {} processes to filter.", processes.len());
         for vecp in processes.iter() {
-            if !vecp.is_empty() {
-                if let Some(pr) = vecp.first() {
-                    if let Some(res) = pr
-                        .process
-                        .cmdline
-                        .iter()
-                        .find(|x| x.contains("qemu-system"))
-                    {
-                        debug!("Found a process with {}", res);
-                        let mut tmp: Vec<ProcessRecord> = vec![];
-                        for p in vecp.iter() {
-                            tmp.push(p.clone());
-                        }
-                        qemu_processes.push(tmp);
-                    }
+            if !vecp.is_empty()
+                && let Some(pr) = vecp.first()
+                && let Some(res) = pr
+                    .process
+                    .cmdline
+                    .iter()
+                    .find(|x| x.contains("qemu-system"))
+            {
+                debug!("Found a process with {}", res);
+                let mut tmp: Vec<ProcessRecord> = vec![];
+                for p in vecp.iter() {
+                    tmp.push(p.clone());
                 }
+                qemu_processes.push(tmp);
             }
         }
         qemu_processes

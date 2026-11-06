@@ -163,7 +163,7 @@ async fn show_metrics(
 ) -> Result<Response<Body>, Infallible> {
     trace!("{}", req.uri());
     let mut body = String::new();
-    if req.uri().path() == format!("/{}", &suffix) {
+    if req.uri().path() == format!("/{}", suffix) {
         let now = current_system_time_since_epoch();
         match context.last_request.lock() {
             Ok(mut last_request) => {
@@ -235,7 +235,10 @@ async fn show_metrics(
             }
         }
     } else {
-        let _ = write!(body, "<a href=\"https://github.com/hubblo-org/scaphandre/\">Scaphandre's</a> prometheus exporter here. Metrics available on <a href=\"/{suffix}\">/{suffix}</a>");
+        let _ = write!(
+            body,
+            "<a href=\"https://github.com/hubblo-org/scaphandre/\">Scaphandre's</a> prometheus exporter here. Metrics available on <a href=\"/{suffix}\">/{suffix}</a>"
+        );
     }
     Ok(Response::new(body.into()))
 }

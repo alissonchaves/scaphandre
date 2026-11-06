@@ -6,8 +6,8 @@ use crate::exporters::utils::get_hostname;
 use crate::exporters::*;
 use crate::sensors::Sensor;
 use chrono::Utc;
-use riemann_client::proto::{Attribute, Event};
 use riemann_client::Client;
+use riemann_client::proto::{Attribute, Event};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -49,9 +49,9 @@ impl RiemannClient {
         event.set_host(metric.hostname.to_string());
         event.set_service(metric.name.to_string());
         event.set_state(metric.state.to_string());
-        event.set_tags(protobuf::RepeatedField::from_vec(metric.tags.clone()));
+        event.tags = metric.tags.clone();
         if !attributes.is_empty() {
-            event.set_attributes(protobuf::RepeatedField::from_vec(attributes));
+            event.attributes = attributes;
         }
         event.set_description(metric.description.to_string());
 
@@ -120,11 +120,11 @@ pub struct ExporterArgs {
     )]
     pub mtls: bool,
 
-    /// CA certificate file (.pem format)
+    /// CA certificate file (.crt format)
     #[arg(long = "ca", requires = "mtls")]
     pub ca_file: Option<String>,
 
-    /// Client certificate file (.pem format)
+    /// Client certificate file (.crt format)
     #[arg(long = "cert", requires = "mtls")]
     pub cert_file: Option<String>,
 
